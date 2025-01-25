@@ -1,14 +1,10 @@
-DISPLAY_CAMERA = True
-
 import cv2
 import mediapipe as mp
 import numpy as np
-import time
-from datetime import timedelta
-import socket
-from datetime import datetime
 import json
 from google.protobuf.json_format import MessageToDict
+
+DISPLAY_CAMERA = True
 
 NUM_TO_LANDMARK = {
     0: "NOSE",
@@ -48,36 +44,8 @@ NUM_TO_LANDMARK = {
 
 JSON_NAME = "skeleton"
 
-
 mp_drawing  = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose
-
-# Lower and upper boundaries for camera
-webcam_lower_bound = -0.5
-webcam_upper_bound = 1.5
-
-# Calculates the angle between coordinates a, b, and c (which are all x, y coordinates)
-def calculate_angle(a,b,c):
-    a = np.array(a)
-    b = np.array(b)
-    c = np.array(c)
-    
-    radians = np.arctan2(c[1]-b[1], c[0]-b[0])-np.arctan2(a[1]-b[1], a[0]-b[0])
-    angle = np.abs(radians*180.0/np.pi)
-
-    if angle>180.0:
-        angle=360-angle
-    
-    return angle
-
-# Validates that the x and y value for each land mark (in an array of land marks) is between a lower and upper bound range
-def check_validity(land_marks):
-    
-    for i in land_marks:
-        if(i[0]<webcam_lower_bound or i[0]>webcam_upper_bound or i[1]<webcam_lower_bound or i[1]>webcam_upper_bound):
-            return False
-        
-    return True
 
 # Captures webcam footage
 cap = cv2.VideoCapture(0)
