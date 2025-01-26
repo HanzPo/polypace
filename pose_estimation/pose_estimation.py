@@ -73,7 +73,7 @@ with mp_pose.Pose(min_detection_confidence = 0.5, min_tracking_confidence = 0.5)
             
             landmarks = results.pose_landmarks.landmark
 
-            with open("coordinates.json", "w") as json_file:
+            with open("../coordinates.json", "w") as json_file:
                 all_landmarks_dict = {}
                 for i in range(len(landmarks)):
                     all_landmarks_dict[NUM_TO_LANDMARK[i]] = MessageToDict(landmarks[i])
