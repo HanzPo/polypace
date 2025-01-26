@@ -48,6 +48,7 @@ NUM_TO_LANDMARK = {
 
 
 def calculate_angle(a,b,c):
+    # print("start angle calc")
     a = np.array(a)
     b = np.array(b)
     c = np.array(c)
@@ -62,47 +63,150 @@ def calculate_angle(a,b,c):
     return np.degrees(np.arccos(dot_product/(norm_a*norm_b)))
 
 
-# FOR SIGMA TOO LARGE, F(X) FOR EVERY X ROUNDS TO 0
-# HAVE TO BE CAREFUL SCALE OF TIME VS SIGMA
+# 2 NUMERICAL ERRORS
+# 1. SIGMA TOO LARGE, F(X) FOR EVERY X ROUNDS TO 0
+# 2. F(A) TOO LARGE FOR A, AND ROUNDS TO 0
+# EITHER WAY ATTEMPTS TO DIVIDE BY 0
 def custom_pdf(x, loc, scale):
+    
+    # print("ret: ", norm.pdf(x, loc=loc, scale=scale)/norm.pdf(x, loc=loc, scale=scale))
+    # print("passed x: ", x)
     return norm.pdf(x, loc=loc, scale=scale)/norm.pdf(0, loc=loc, scale=scale)
+    # return ret
+    # if(str(ret)=="nan"):
+    #     # print("ret 0")
+    #     return 0
 
+
+# start = datetime.now()
 FR_MULT = 10
 def get_curr_time():
     return (datetime.now()-datetime(1970, 1, 1)).total_seconds()*FR_MULT
 
+# print(get_curr_time())
+
 start = get_curr_time()
 
 def delta_t(t2, t1=start):
+    # return (t2-t1).total_seconds()*1000
     return t2-t1
+    
+# def delta_t(t2):
+#     return delta_t(start, t2)
 
 def get_angles(landmarks):
     
+    # print("start run")
     hip_l=[landmarks[23].x, landmarks[23].y, landmarks[23].z]
     knee_l=[landmarks[25].x, landmarks[25].y, landmarks[25].z]
     ankle_l=[landmarks[27].x, landmarks[27].y, landmarks[27].z]
     hip_r=[landmarks[22].x, landmarks[22].y, landmarks[22].z]
     knee_r=[landmarks[24].x, landmarks[24].y, landmarks[24].z]
     ankle_r=[landmarks[26].x, landmarks[26].y, landmarks[26].z]
+    # print("got coords")
     
     hip_knee_ankle_l_theta = calculate_angle(hip_l, knee_l, ankle_l)
     hip_knee_ankle_r_theta = calculate_angle(hip_r, knee_r, ankle_r)
-
+    # print("angle stuff done")
+    # delta_t = datetime.now()-start
+    # with open("angles.txt", "a") as file:
+    #     # Write the new data as a line
+    #     # curr_time = int(datetime.now().timestamp()*1000)
+    #     # delta_t = curr_time-start
+    #     # elapsed = datetime.now() - start
+    #     # delta = elapsed.total_seconds()*1000
+    #     delta = delta_t(datetime.now())
+    #     # print(delta)
+    #     file.write(f"{delta} {hip_knee_ankle_l_theta} {hip_knee_ankle_r_theta}\n")
+        
+        
+    #     # print(type(datetime.now().timestamp()*1000))
+    #     # delta_t = int((datetime.now()-start).timestamp()*1000)
+    #     # print("delta_t: ", delta_t)
+    #     # file.write(f"{delta_t} {hip_knee_ankle_l_theta} {hip_knee_ankle_r_theta}\n")
+    # print("done write file")
+    
     return delta_t(get_curr_time()), hip_knee_ankle_l_theta, hip_knee_ankle_r_theta
 
 def load_data(landmarks):
     
+    # print("start run")
     hip_l=[landmarks[23].x, landmarks[23].y, landmarks[23].z]
     knee_l=[landmarks[25].x, landmarks[25].y, landmarks[25].z]
     ankle_l=[landmarks[27].x, landmarks[27].y, landmarks[27].z]
     hip_r=[landmarks[22].x, landmarks[22].y, landmarks[22].z]
     knee_r=[landmarks[24].x, landmarks[24].y, landmarks[24].z]
     ankle_r=[landmarks[26].x, landmarks[26].y, landmarks[26].z]
+    # print("got coords")
     
     hip_knee_ankle_l_theta = calculate_angle(hip_l, knee_l, ankle_l)
     hip_knee_ankle_r_theta = calculate_angle(hip_r, knee_r, ankle_r)
-
+    # print("angle stuff done")
+    # delta_t = datetime.now()-start
+    # with open("angles.txt", "a") as file:
+        # Write the new data as a line
+        # curr_time = int(datetime.now().timestamp()*1000)
+        # delta_t = curr_time-start
+        # elapsed = datetime.now() - start
+        # delta = elapsed.total_seconds()*1000
+        # delta = delta_t(datetime.now())
+        # print("op")
+        # curr_time = get_curr_time()
+        # print(delta)
+        # print("aoeu")
+        # file.write(f"aoeuoeua\n")
+        # file.write(f"{curr_time} {hip_knee_ankle_l_theta} {hip_knee_ankle_r_theta}\n")
+        # print("aoeu2")
+        
+        
+    #     # print(type(datetime.now().timestamp()*1000))
+    #     # delta_t = int((datetime.now()-start).timestamp()*1000)
+    #     # print("delta_t: ", delta_t)
+    #     # file.write(f"{delta_t} {hip_knee_ankle_l_theta} {hip_knee_ankle_r_theta}\n")
+    # print("done write file")
+    
     return delta_t(get_curr_time()), hip_knee_ankle_l_theta, hip_knee_ankle_r_theta
+
+
+
+def read_new_test_data(landmarks):
+    
+    # print("start run")
+    hip_l=[landmarks[23].x, landmarks[23].y, landmarks[23].z]
+    knee_l=[landmarks[25].x, landmarks[25].y, landmarks[25].z]
+    ankle_l=[landmarks[27].x, landmarks[27].y, landmarks[27].z]
+    hip_r=[landmarks[22].x, landmarks[22].y, landmarks[22].z]
+    knee_r=[landmarks[24].x, landmarks[24].y, landmarks[24].z]
+    ankle_r=[landmarks[26].x, landmarks[26].y, landmarks[26].z]
+    # print("got coords")
+    
+    hip_knee_ankle_l_theta = calculate_angle(hip_l, knee_l, ankle_l)
+    hip_knee_ankle_r_theta = calculate_angle(hip_r, knee_r, ankle_r)
+    # print("angle stuff done")
+    # delta_t = datetime.now()-start
+    with open("angles.txt", "a") as file:
+        # Write the new data as a line
+        # curr_time = int(datetime.now().timestamp()*1000)
+        # delta_t = curr_time-start
+        # elapsed = datetime.now() - start
+        # delta = elapsed.total_seconds()*1000
+        # delta = delta_t(datetime.now())
+        # print("op")
+        curr_time = get_curr_time()
+        # print(delta)
+        # print("aoeu")
+        # file.write(f"aoeuoeua\n")
+        file.write(f"{curr_time} {hip_knee_ankle_l_theta} {hip_knee_ankle_r_theta}\n")
+        # print("aoeu2")
+        
+        
+    #     # print(type(datetime.now().timestamp()*1000))
+    #     # delta_t = int((datetime.now()-start).timestamp()*1000)
+    #     # print("delta_t: ", delta_t)
+    #     # file.write(f"{delta_t} {hip_knee_ankle_l_theta} {hip_knee_ankle_r_theta}\n")
+    # print("done write file")
+    
+    # return delta_t(datetime.now()), hip_knee_ankle_l_theta, hip_knee_ankle_r_theta
 
 
 prev_theta_l = None
@@ -208,6 +312,42 @@ def calculate_speed(landmarks):
         i=(i+1)%MEMORY_CAP
 
     return f
+    
+    
+# def testing_speed():
+#     # Open the file in read mode
+    
+#     start_time_sim = None
+#     with open("andrew_455am.txt", "r") as file:
+#     # with open("rachel_new_data_w_diff_top_only.txt", "r") as file:
+#         # Iterate through each line in the file
+#         for line in file:
+#             # Strip whitespace and split the line by spaces (or other delimiter if applicable)
+#             elements = line.strip().split()
+            
+#             # Extract the first, second, and third elements as floats
+#             if len(elements) >= 3:  # Ensure there are at least 3 elements in the line
+#                 first = float(elements[0])
+#                 if(start_time_sim==None):
+#                     start_time_sim=first
+#                 second = float(elements[1])
+#                 third = float(elements[2])
+                
+#                 # # Print the extracted values (optional)
+#                 # print(f"First: {first}, Second: {second}, Third: {third}")
+                
+#                 speed = calculate_speed(start_time_sim/100, first/100, second, third)  # careful
+#                 print(speed)
+                
+#                 with open("to_plot.txt", "a") as plot_file:
+#                     plot_file.write(f"{first} {second} {third} {speed}\n")
+#             else: 
+#                 print("Line does not have enough elements:", line)
+
+#     print("yurr")
+
+# testing_speed()
+
 
 
 
@@ -239,6 +379,9 @@ with mp_pose.Pose(min_detection_confidence = 0.5, min_tracking_confidence = 0.5)
         try:
             
             landmarks = results.pose_landmarks.landmark
+            # print("haoeu")
+            # load_data(landmarks)
+            # read_new_test_data(landmarks)
 
             with open("../data.json", "w") as json_file:
                 all_landmarks_dict = {}

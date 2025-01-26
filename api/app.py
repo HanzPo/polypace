@@ -8,8 +8,8 @@ from fastapi import FastAPI
 app = FastAPI()
 
 # FastAPI endpoint that returns the coordinates
-@app.get("/get_coordinates")
-async def get_coordinates():
-    with open("../coordinates.json", "r") as json_file:
+@app.get("/get_data")
+async def get_data():
+    with open("../data.json", "r") as json_file:
         coordinates = json.load(json_file)
     return coordinates
