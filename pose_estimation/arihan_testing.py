@@ -208,7 +208,6 @@ def read_new_test_data(landmarks):
     
     # return delta_t(datetime.now()), hip_knee_ankle_l_theta, hip_knee_ankle_r_theta
 
-
 prev_theta_l = None
 prev_theta_r = None
 
@@ -267,9 +266,6 @@ def rem_steps_from_mem(curr_t):
     global tot_add
     if(memory[p1]==-1):
         return
-    
-    # print(memory)
-    
     while(irrelevant_pt(curr_t, memory[p1])):
         
         # Never let p1 surpass p2
@@ -325,15 +321,14 @@ def calculate_speed(landmarks):
     
     return f
 
-def calculate_speed_test(start_t, t, theta_l, theta_r):
+def calculate_speed_test(curr_t, t, theta_l, theta_r):
     
     global p1, p2
     
     detect_sign_change(t, theta_l, theta_r)
-    rem_steps_from_mem(t)
+    rem_steps_from_mem(curr_t)
     
     # print("done p1")
-    print(f"start_t: {start_t}, t: {t}")
     print(f"p1: {p1}, p2: {p2}")
     out = ""
     print(f"mem[p1]: {memory[p1]}, t: {t}, diff: {delta_t(t, memory[p1])}")
@@ -360,7 +355,7 @@ def calculate_speed_test(start_t, t, theta_l, theta_r):
         # print("norm:", norm.pdf(delta_t(memory[i], get_curr_time()), loc=MU, scale=SIGMA))
         # print("pass into norm: ", delta_t(memory[i], get_curr_time())/SIGMA)
         # f+=COEF*norm.pdf(0, loc=MU, scale=SIGMA) # may need
-        f+=COEF*custom_pdf(delta_t(memory[i], t), loc=MU, scale=SIGMA)
+        f+=COEF*custom_pdf(0, loc=MU, scale=SIGMA)
         # f+=COEF*norm.pdf(delta_t(memory[i], get_curr_time()), loc=MU, scale=SIGMA)
         i=(i+1)%MEMORY_CAP
     print("f: ", f)
@@ -371,8 +366,7 @@ def testing_speed():
     # Open the file in read mode
     
     start_time_sim = None
-    with open("andrew_455am.txt", "r") as file:
-    # with open("rachel_new_data_w_diff_top_only.txt", "r") as file:
+    with open("rachel_new_data_w_diff_top_only.txt", "r") as file:
         # Iterate through each line in the file
         for line in file:
             # Strip whitespace and split the line by spaces (or other delimiter if applicable)
@@ -389,7 +383,7 @@ def testing_speed():
                 # # Print the extracted values (optional)
                 # print(f"First: {first}, Second: {second}, Third: {third}")
                 
-                speed = calculate_speed_test(start_time_sim/100, first/100, second, third)  # careful
+                speed = calculate_speed_test(start_time_sim, first/100, second, third)  # careful
                 print(speed)
                 
                 with open("to_plot.txt", "a") as plot_file:
@@ -399,7 +393,7 @@ def testing_speed():
 
     print("yurr")
 
-testing_speed()
+# testing_speed()
 
 
 
@@ -434,32 +428,31 @@ with mp_pose.Pose(min_detection_confidence = 0.5, min_tracking_confidence = 0.5)
             
             landmarks = results.pose_landmarks.landmark
             # print("haoeu")
-            # load_data(landmarks)
-            read_new_test_data(landmarks)
-
-            with open("data.json", "w") as json_file:
-                all_landmarks_dict = {}
-                for i in range(len(landmarks)):
-                    all_landmarks_dict[NUM_TO_LANDMARK[i]] = MessageToDict(landmarks[i])
-                
-                speed = calculate_speed(landmarks)
-                
-                json.dump({"skeleton": all_landmarks_dict, "speed": speed}, json_file, indent=4)
-        
-        
-        
-            # landmarks = results.pose_landmarks.landmark
-            # # load_data(landmarks)
+            load_data(landmarks)
 
             # with open("data.json", "w") as json_file:
             #     all_landmarks_dict = {}
             #     for i in range(len(landmarks)):
             #         all_landmarks_dict[NUM_TO_LANDMARK[i]] = MessageToDict(landmarks[i])
                 
-            #     # speed = calculate_speed(landmarks)
+            #     speed = calculate_speed(landmarks)
                 
-            #     json.dump({"skeleton": all_landmarks_dict}, json_file, indent=4)
-            #     # json.dump({"skeleton": all_landmarks_dict, "speed": speed}, json_file, indent=4)
+            #     json.dump({"skeleton": all_landmarks_dict, "speed": speed}, json_file, indent=4)
+        
+        
+        
+            landmarks = results.pose_landmarks.landmark
+            # load_data(landmarks)
+
+            with open("data.json", "w") as json_file:
+                all_landmarks_dict = {}
+                for i in range(len(landmarks)):
+                    all_landmarks_dict[NUM_TO_LANDMARK[i]] = MessageToDict(landmarks[i])
+                
+                # speed = calculate_speed(landmarks)
+                
+                json.dump({"skeleton": all_landmarks_dict}, json_file, indent=4)
+                # json.dump({"skeleton": all_landmarks_dict, "speed": speed}, json_file, indent=4)
         except:
             pass
 

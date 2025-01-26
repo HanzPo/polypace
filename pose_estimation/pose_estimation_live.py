@@ -59,7 +59,7 @@ def calculate_angle(a,b,c):
     dot_product = np.dot(v1, v2)
     norm_a = np.linalg.norm(a)
     norm_b = np.linalg.norm(b)
-    # print("done process")
+
     return np.degrees(np.arccos(dot_product/(norm_a*norm_b)))
 
 
@@ -71,8 +71,8 @@ def custom_pdf(x, loc, scale):
     
     # print("ret: ", norm.pdf(x, loc=loc, scale=scale)/norm.pdf(x, loc=loc, scale=scale))
     # print("passed x: ", x)
-    ret = norm.pdf(x, loc=loc, scale=scale)/norm.pdf(0, loc=loc, scale=scale)
-    return ret
+    return norm.pdf(x, loc=loc, scale=scale)/norm.pdf(0, loc=loc, scale=scale)
+    # return ret
     # if(str(ret)=="nan"):
     #     # print("ret 0")
     #     return 0
@@ -232,20 +232,7 @@ def populate_memory():
 populate_memory()
 
 def irrelevant_pt(curr_t, t):
-    tot_elapsed_t = delta_t(curr_t, t)
-    # T -1 ERROR
-    print("irr calc: ", delta_t(t, curr_t)/SIGMA)
-    print("t:         ", t)
-    print("curr time: ", curr_t)
-    print("delta t?: ", delta_t(t, curr_t))
-    print("norm val: ", custom_pdf(delta_t(t, curr_t), loc=MU, scale=SIGMA))
-    # print("norm val: ", norm.pdf(delta_t(t, get_curr_time()), loc=MU, scale=SIGMA))
-    print("bool: ", custom_pdf(delta_t(t, curr_t), loc=MU, scale=SIGMA)<0.05)
-    # print("bool: ", norm.pdf(delta_t(t, get_curr_time()), loc=MU, scale=SIGMA)<0.05)
     return custom_pdf(delta_t(t, curr_t), loc=MU, scale=SIGMA)<0.05
-    # return norm.pdf(delta_t(t, get_curr_time()), loc=MU, scale=SIGMA)<0.05
-    # return tot_elapsed_t>STD_DEV_CONST*SIGMA
-    # return True
     
     
 tot_add = 0
@@ -261,15 +248,13 @@ def add_step_to_mem(t):
     print("ADDED PT", tot_add)
     tot_add+=1
     
+    
 def rem_steps_from_mem(curr_t):
     global p1, p2
     
-    global tot_add
     if(memory[p1]==-1):
         return
-    
-    # print(memory)
-    
+
     while(irrelevant_pt(curr_t, memory[p1])):
         
         # Never let p1 surpass p2
@@ -286,6 +271,7 @@ def rem_steps_from_mem(curr_t):
             break
         
 def detect_sign_change(t, theta_l, theta_r):
+    
     global prev_theta_l, prev_theta_r
     
     if prev_theta_l==None and prev_theta_r==None:
@@ -295,75 +281,36 @@ def detect_sign_change(t, theta_l, theta_r):
     
     # Sign change
     if((theta_r-theta_l)*(prev_theta_r-prev_theta_l)<0):
-        print("SIGN CHANGE at ", t)
-        
+        print("SIGN CHANGE")
         add_step_to_mem(t)
     
     prev_theta_l=theta_l
     prev_theta_r=theta_r
+    
 
-        
-# Called at each iteration
 def calculate_speed(landmarks):
     
-    global p1, p2
-    
     t, theta_l, theta_r = get_angles(landmarks)
-    
-    detect_sign_change(t, theta_l, theta_r)
-    rem_steps_from_mem()
-    
-    i=p1
-    f=0
-    while(True):
-        
-        if(i==p2):
-            break
-        # f+=1
-        f+=norm.pdf(delta_t(memory[i], get_curr_time()), loc=MU, scale=SIGMA)
-        i=(i+1)%MEMORY_CAP
-    
-    return f
-
-def calculate_speed_test(start_t, t, theta_l, theta_r):
     
     global p1, p2
     
     detect_sign_change(t, theta_l, theta_r)
     rem_steps_from_mem(t)
     
-    # print("done p1")
-    print(f"start_t: {start_t}, t: {t}")
-    print(f"p1: {p1}, p2: {p2}")
-    out = ""
-    print(f"mem[p1]: {memory[p1]}, t: {t}, diff: {delta_t(t, memory[p1])}")
-    # print(f"mem[p1]: {memory[p1]}, mem[p2]: {memory[p2]}")
-    # for i in range(1, MEMORY_CAP):
-    #     out+=f" {memory[i]-memory[i-1]}"
-    # print(out)
-    # out2 = ""
-    # for i in range(MEMORY_CAP):
-    #     out2+=f" {memory[i]}"
-    # print(out2)
     i=p1
     f=0
+    
     while(1):
-        # print("it")
         if(i==p2):
             break
         
         if(memory[i]==-1):
             break
-        # print("delt: ", delta_t(memory[i], get_curr_time()))
-        # print("mem", memory[i])
-        # print("get_curr_time", get_curr_time())
-        # print("norm:", norm.pdf(delta_t(memory[i], get_curr_time()), loc=MU, scale=SIGMA))
-        # print("pass into norm: ", delta_t(memory[i], get_curr_time())/SIGMA)
-        # f+=COEF*norm.pdf(0, loc=MU, scale=SIGMA) # may need
+        
         f+=COEF*custom_pdf(delta_t(memory[i], t), loc=MU, scale=SIGMA)
-        # f+=COEF*norm.pdf(delta_t(memory[i], get_curr_time()), loc=MU, scale=SIGMA)
+
         i=(i+1)%MEMORY_CAP
-    print("f: ", f)
+
     return f
     
     
@@ -389,18 +336,17 @@ def testing_speed():
                 # # Print the extracted values (optional)
                 # print(f"First: {first}, Second: {second}, Third: {third}")
                 
-                speed = calculate_speed_test(start_time_sim/100, first/100, second, third)  # careful
+                speed = calculate_speed(start_time_sim/100, first/100, second, third)  # careful
                 print(speed)
                 
                 with open("to_plot.txt", "a") as plot_file:
                     plot_file.write(f"{first} {second} {third} {speed}\n")
-            else:
+            else: 
                 print("Line does not have enough elements:", line)
 
     print("yurr")
 
-testing_speed()
-
+# testing_speed()
 
 
 
@@ -435,31 +381,17 @@ with mp_pose.Pose(min_detection_confidence = 0.5, min_tracking_confidence = 0.5)
             landmarks = results.pose_landmarks.landmark
             # print("haoeu")
             # load_data(landmarks)
-            read_new_test_data(landmarks)
+            # read_new_test_data(landmarks)
 
             with open("data.json", "w") as json_file:
                 all_landmarks_dict = {}
+
                 for i in range(len(landmarks)):
                     all_landmarks_dict[NUM_TO_LANDMARK[i]] = MessageToDict(landmarks[i])
                 
                 speed = calculate_speed(landmarks)
-                
                 json.dump({"skeleton": all_landmarks_dict, "speed": speed}, json_file, indent=4)
-        
-        
-        
-            # landmarks = results.pose_landmarks.landmark
-            # # load_data(landmarks)
 
-            # with open("data.json", "w") as json_file:
-            #     all_landmarks_dict = {}
-            #     for i in range(len(landmarks)):
-            #         all_landmarks_dict[NUM_TO_LANDMARK[i]] = MessageToDict(landmarks[i])
-                
-            #     # speed = calculate_speed(landmarks)
-                
-            #     json.dump({"skeleton": all_landmarks_dict}, json_file, indent=4)
-            #     # json.dump({"skeleton": all_landmarks_dict, "speed": speed}, json_file, indent=4)
         except:
             pass
 
